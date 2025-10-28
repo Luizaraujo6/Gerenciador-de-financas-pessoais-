@@ -1,6 +1,7 @@
 #include <stdio.h>
+#include <string.h> 
 
-// Variaveis globais (cobre todo o programa)
+// Variaveis globais
 int mesestabela = 0, i;
 float tabelainvestimento[100];
 
@@ -12,7 +13,6 @@ void mostrarSaldo(float saldo){
 float atualizarRendimento(float saldo){
     float rendimento;
     printf("Digite o valor do rendimento diario: ");
-    // Verifica se scanf conseguiu ler um número (retorno == 1)
     while (scanf("%f", &rendimento) != 1) {  
         printf("Entrada invalida! Digite um numero: ");
         while(getchar() != '\n'); // limpa o buffer, descartando caracteres inválidos
@@ -25,9 +25,9 @@ float atualizarRendimento(float saldo){
 float atualizarDespesa(float saldo){
     float despesa;
     printf("Digite o valor da despesa diaria: ");
-    while (scanf("%f", &despesa) != 1) {  // só continua se for número válido
+    while (scanf("%f", &despesa) != 1) {  
         printf("Entrada invalida! Digite um numero: ");
-        while(getchar() != '\n'); // descarta caracteres errados do buffer (ex: letras)
+        while(getchar() != '\n'); 
     }
     saldo -= despesa;
     printf("Despesa registrada. Novo saldo: R$ %.2f\n", saldo);
@@ -38,16 +38,15 @@ void criarTabelaInvestimento(){
     float objetivo, parcela;
 
     printf("Digite o valor que deseja juntar: ");
-    while (scanf("%f", &objetivo) != 1) {  // protege contra entrada inválida
+    while (scanf("%f", &objetivo) != 1) {  
         printf("Entrada invalida! Digite um numero: ");
-        while(getchar() != '\n'); // limpa buffer
+        while(getchar() != '\n'); 
     }
 
     printf("Digite em quantos meses deseja juntar: ");
     while (scanf("%d", &mesestabela) != 1 || mesestabela <= 0 || mesestabela > 100) {
-        // Verifica se o scanf leu corretamente E se o número está no intervalo
         printf("Entrada invalida! Digite um numero de meses valido (1 a 100): ");
-        while(getchar() != '\n'); // limpa buffer para evitar loop infinito
+        while(getchar() != '\n'); 
     }
 
     parcela = objetivo / mesestabela;
@@ -72,35 +71,40 @@ void mostrarTabelaInvestimento(){
 
 // -------- FUNÇÃO PRINCIPAL --------
 int main(){
-    char nome[50];
+    char nomeCompleto[100]; 
+    char primeiroNome[50];  // armazena apenas o primeiro nome
     int menu, retornar = 1;
     float saldoatual=0;
 
     printf("Bem vindo ao FinancasPro, seu gerenciador de financas e auxiliar de tabelas de investimento!\n");
-    printf("Informe como gostaria de ser chamado: ");
-    scanf("%s", nome);
+    printf("Informe seu nome completo: ");
+    while(getchar() != '\n'); // limpa caracteres anteriores do buffer
+    fgets(nomeCompleto, sizeof(nomeCompleto), stdin); // lê espaços
+
+    // Remove o '\n' do final da string (causado pelo Enter)
+    nomeCompleto[strcspn(nomeCompleto, "\n")] = '\0';
+
+    // Extrai o primeiro nome usando strtok
+    strcpy(primeiroNome, strtok(nomeCompleto, " ")); 
 
     while (retornar == 1) {
-        printf("\nOla, %s. O que gostaria de acessar?\n", nome);
+        printf("\nOla, %s. O que gostaria de acessar?\n", primeiroNome);
         printf("1 - Gerenciador de financas\n2 - Tabelas de investimento\n3 - Sair\nEscolha: ");
         
-        // Protege contra entrada inválida
         while (scanf("%d", &menu) != 1 || menu < 1 || menu > 3) {
             printf("Entrada invalida! Digite 1, 2 ou 3: ");
-            while(getchar() != '\n'); // limpa caracteres inválidos no buffer
+            while(getchar() != '\n');
         }
 
         if (menu == 1) {
-            // --- GERENCIADOR ---
             int menugerenciador, continuarGerenciador = 1;
             while (continuarGerenciador == 1) {
                 printf("\nMenu do Gerenciador de Financas:\n");
                 printf("1 - Ver saldo atual\n2 - Adicionar rendimento diario\n3 - Registrar despesa diaria\n4 - Voltar ao menu principal\nEscolha: ");
 
-                // proteção contra valores inválidos
                 while (scanf("%d", &menugerenciador) != 1 || menugerenciador < 1 || menugerenciador > 4) {
                     printf("Entrada invalida! Digite 1, 2, 3 ou 4: ");
-                    while(getchar() != '\n'); // limpa buffer
+                    while(getchar() != '\n');
                 }
 
                 if (menugerenciador == 1) {
@@ -110,12 +114,11 @@ int main(){
                 } else if (menugerenciador == 3) {
                     saldoatual = atualizarDespesa(saldoatual);
                 } else if (menugerenciador == 4) {
-                    continuarGerenciador = 0; // volta para o menu principal
+                    continuarGerenciador = 0;
                 }
             }
 
         } else if (menu == 2) {
-            // --- TABELAS ---
             int menutabela, continuarTabela = 1;
             while (continuarTabela == 1) {
                 printf("\nMenu das Tabelas de Investimento:\n");
@@ -123,7 +126,7 @@ int main(){
 
                 while (scanf("%d", &menutabela) != 1 || menutabela < 1 || menutabela > 3) {
                     printf("Entrada invalida! Digite 1, 2 ou 3: ");
-                    while(getchar() != '\n'); // limpa buffer
+                    while(getchar() != '\n');
                 }
 
                 if (menutabela == 1) {
@@ -131,16 +134,16 @@ int main(){
                 } else if (menutabela == 2) {
                     criarTabelaInvestimento();
                 } else if (menutabela == 3) {
-                    continuarTabela = 0; // volta para o menu principal
+                    continuarTabela = 0;
                 }
             }
 
         } else if (menu == 3) {
-            // --- SAIR ---
-            printf("Saindo do programa. Ate logo, %s!\n", nome);
-            retornar = 0; // encerra laço principal
+            printf("Saindo do programa. Ate logo, %s!\n", primeiroNome);
+            retornar = 0;
         }
     }
 
     return 0;
 }
+
