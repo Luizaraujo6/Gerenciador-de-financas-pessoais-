@@ -7,9 +7,11 @@ char nomeCompleto[100];
 char primeiroNome[50];
 float saldoAtual = 0;
 
-// Tabela de desafios
-float tabelaDesafio[500];
-int totalDepositos = 0;
+// Tabela de desafios (matriz: meses x 20 depositos por mes)
+#define MAX_MESES 12
+#define DEPOSITOS_POR_MES 20
+float tabelaDesafio[MAX_MESES][DEPOSITOS_POR_MES];
+int mesesDesafio = 0;
 
 // -------- FUNCOES --------
 void mostrarSaldo(){
@@ -41,18 +43,23 @@ float atualizarDespesa(){
 }
 
 void verTabelaDesafio(){
-    if(totalDepositos == 0){
+    if(mesesDesafio == 0){
         printf("Nenhum desafio criado ainda. Crie um desafio primeiro.\n");
         return;
     }
 
     printf("\nTabela do desafio:\n");
-    printf("Deposito\tValor a depositar\tTotal acumulado\n");
+    printf("Mes\tDeposito\tValor a depositar\tTotal acumulado\n");
     float acumulado = 0;
-    for(int i = 0; i < totalDepositos; i++){
-        acumulado += tabelaDesafio[i];
-        printf("%d\t\t%.1f\t\t\t%.1f\n", i+1, tabelaDesafio[i], acumulado);
+    for(int i = 0; i < mesesDesafio; i++){
+        for(int j = 0; j < DEPOSITOS_POR_MES; j++){
+            if(tabelaDesafio[i][j] > 0){
+                acumulado += tabelaDesafio[i][j];
+                printf("%d\t%d\t\t%.1f\t\t\t%.1f\n", i+1, j+1, tabelaDesafio[i][j], acumulado);
+            }
+        }
     }
+    printf("Total acumulado: %.1f\n", acumulado);
 }
 
 void criarDesafioAutomatico(){
@@ -63,21 +70,25 @@ void criarDesafioAutomatico(){
         while(getchar() != '\n');
     }
 
-    int meses = 12;
-    totalDepositos = meses;
+    mesesDesafio = 12;
 
     // Zera a tabela antiga
-    for(int j=0; j<500; j++) tabelaDesafio[j] = 0;
+    for(int i = 0; i < MAX_MESES; i++)
+        for(int j = 0; j < DEPOSITOS_POR_MES; j++)
+            tabelaDesafio[i][j] = 0;
 
-    float deposito = ceil((metaTotal / meses) * 10) / 10.0; // arredonda para cima
+    float depositoMes = ceil((metaTotal / mesesDesafio) * 10) / 10.0;
+    float depositoDiario = depositoMes / DEPOSITOS_POR_MES;
     float acumulado = 0;
 
     printf("\nDesafio automatico:\n");
-    printf("Mes\tValor a depositar\tTotal acumulado\n");
-    for(int i = 0; i < meses; i++){
-        tabelaDesafio[i] = deposito;
-        acumulado += deposito;
-        printf("%d\t%.1f\t\t\t%.1f\n", i+1, deposito, acumulado);
+    printf("Mes\tDeposito\tValor a depositar\tTotal acumulado\n");
+    for(int i = 0; i < mesesDesafio; i++){
+        for(int j = 0; j < DEPOSITOS_POR_MES; j++){
+            tabelaDesafio[i][j] = depositoDiario;
+            acumulado += depositoDiario;
+            printf("%d\t%d\t\t%.1f\t\t\t%.1f\n", i+1, j+1, depositoDiario, acumulado);
+        }
     }
     printf("Meta anual: %.1f, Total acumulado: %.1f\n", metaTotal, acumulado);
 }
@@ -91,42 +102,51 @@ void criarDesafioPersonalizado(){
         while(getchar() != '\n');
     }
 
-    printf("Em quantos meses deseja juntar: ");
-    while(scanf("%d", &meses) != 1 || meses <= 0){
-        printf("Entrada invalida! Digite um numero positivo: ");
+    printf("Em quantos meses deseja juntar (max 12): ");
+    while(scanf("%d", &meses) != 1 || meses <= 0 || meses > MAX_MESES){
+        printf("Entrada invalida! Digite 1-%d: ", MAX_MESES);
         while(getchar() != '\n');
     }
 
-    int depositosPorMes = 20;
-    totalDepositos = meses * depositosPorMes;
-    if(totalDepositos > 500) totalDepositos = 500;
+    mesesDesafio = meses;
+
+    int totalDepositos = meses * DEPOSITOS_POR_MES;
 
     // Zera a tabela antiga
-    for(int j=0; j<500; j++) tabelaDesafio[j] = 0;
+    for(int i = 0; i < MAX_MESES; i++)
+        for(int j = 0; j < DEPOSITOS_POR_MES; j++)
+            tabelaDesafio[i][j] = 0;
 
     float valorBase = metaTotal / totalDepositos;
     float acumulado = 0;
-    int incremento = 1;
+    float incremento = valorBase * 0.1; // aumento gradual de 10% do valor base
+    float valorAtual = valorBase;
 
     printf("\nDesafio personalizado:\n");
-    printf("Deposito\tValor a depositar\tTotal acumulado\n");
+    printf("Mes\tDeposito\tValor a depositar\tTotal acumulado\n");
 
-    for(int i = 0; i < totalDepositos; i++){
-        if(i > 0 && i % 5 == 0 && acumulado < metaTotal){
-            incremento++;
-        }
-        float valorDeposito = valorBase * incremento;
-        valorDeposito = ceil(valorDeposito * 10) / 10.0; // arredonda pra cima
-        tabelaDesafio[i] = valorDeposito;
-        acumulado += valorDeposito;
-        printf("%d\t\t%.1f\t\t\t%.1f\n", i+1, valorDeposito, acumulado);
-        if(acumulado >= metaTotal){
-            for(int j=i+1; j<totalDepositos; j++){
-                tabelaDesafio[j] = valorDeposito;
+    for(int i = 0; i < mesesDesafio; i++){
+        for(int j = 0; j < DEPOSITOS_POR_MES; j++){
+            tabelaDesafio[i][j] = ceil(valorAtual*10)/10.0; // arredonda pra cima 1 casa decimal
+            acumulado += tabelaDesafio[i][j];
+            printf("%d\t%d\t\t%.1f\t\t\t%.1f\n", i+1, j+1, tabelaDesafio[i][j], acumulado);
+
+            // aumenta gradualmente
+            valorAtual += incremento;
+
+            if(acumulado >= metaTotal){
+                // preenche restante com zeros
+                for(int ii = i; ii < mesesDesafio; ii++){
+                    for(int jj = (ii==i? j+1:0); jj < DEPOSITOS_POR_MES; jj++){
+                        tabelaDesafio[ii][jj] = 0;
+                    }
+                }
+                break;
             }
-            break;
         }
+        if(acumulado >= metaTotal) break;
     }
+
     printf("Meta desejada: %.1f, Total acumulado: %.1f\n", metaTotal, acumulado);
 }
 
@@ -187,4 +207,3 @@ int main(){
 
     return 0;
 }
-
