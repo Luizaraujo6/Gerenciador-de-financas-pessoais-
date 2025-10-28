@@ -1,146 +1,187 @@
 #include <stdio.h>
-#include <string.h> 
+#include <string.h>
+#include <math.h>
 
 // Variaveis globais
-int mesestabela = 0, i;
-float tabelainvestimento[100];
+char nomeCompleto[100];
+char primeiroNome[50];
+float saldoAtual = 0;
 
-// -------- FUNÇÕES --------
-void mostrarSaldo(float saldo){
-    printf("Saldo atual: R$ %.2f\n", saldo);
+// Tabela de desafios
+float tabelaDesafio[500];
+int totalDepositos = 0;
+
+// -------- FUNCOES --------
+void mostrarSaldo(){
+    printf("Saldo atual: R$ %.2f\n", saldoAtual);
 }
 
-float atualizarRendimento(float saldo){
+float atualizarRendimento(){
     float rendimento;
     printf("Digite o valor do rendimento diario: ");
-    while (scanf("%f", &rendimento) != 1) {  
+    while(scanf("%f", &rendimento) != 1){
         printf("Entrada invalida! Digite um numero: ");
-        while(getchar() != '\n'); // limpa o buffer, descartando caracteres inválidos
+        while(getchar() != '\n');
     }
-    saldo += rendimento;
-    printf("Rendimento adicionado. Novo saldo: R$ %.2f\n", saldo);
-    return saldo;
+    saldoAtual += rendimento;
+    printf("Rendimento adicionado. Novo saldo: R$ %.2f\n", saldoAtual);
+    return saldoAtual;
 }
 
-float atualizarDespesa(float saldo){
+float atualizarDespesa(){
     float despesa;
     printf("Digite o valor da despesa diaria: ");
-    while (scanf("%f", &despesa) != 1) {  
+    while(scanf("%f", &despesa) != 1){
         printf("Entrada invalida! Digite um numero: ");
-        while(getchar() != '\n'); 
+        while(getchar() != '\n');
     }
-    saldo -= despesa;
-    printf("Despesa registrada. Novo saldo: R$ %.2f\n", saldo);
-    return saldo;
+    saldoAtual -= despesa;
+    printf("Despesa registrada. Novo saldo: R$ %.2f\n", saldoAtual);
+    return saldoAtual;
 }
 
-void criarTabelaInvestimento(){
-    float objetivo, parcela;
-
-    printf("Digite o valor que deseja juntar: ");
-    while (scanf("%f", &objetivo) != 1) {  
-        printf("Entrada invalida! Digite um numero: ");
-        while(getchar() != '\n'); 
+void verTabelaDesafio(){
+    if(totalDepositos == 0){
+        printf("Nenhum desafio criado ainda. Crie um desafio primeiro.\n");
+        return;
     }
 
-    printf("Digite em quantos meses deseja juntar: ");
-    while (scanf("%d", &mesestabela) != 1 || mesestabela <= 0 || mesestabela > 100) {
-        printf("Entrada invalida! Digite um numero de meses valido (1 a 100): ");
-        while(getchar() != '\n'); 
-    }
-
-    parcela = objetivo / mesestabela;
-
-    printf("\nTabela sugerida para atingir o objetivo:\n");
-    for(i=0; i<mesestabela; i++){
-        tabelainvestimento[i] = parcela;
-        printf("Mes %d: Depositar R$ %.2f\n", i+1, tabelainvestimento[i]);
+    printf("\nTabela do desafio:\n");
+    printf("Deposito\tValor a depositar\tTotal acumulado\n");
+    float acumulado = 0;
+    for(int i = 0; i < totalDepositos; i++){
+        acumulado += tabelaDesafio[i];
+        printf("%d\t\t%.1f\t\t\t%.1f\n", i+1, tabelaDesafio[i], acumulado);
     }
 }
 
-void mostrarTabelaInvestimento(){
-    if(mesestabela == 0){
-        printf("Nenhuma tabela criada ainda. Va no menu e selecione 'criar nova tabela'.\n");
-    } else{
-        printf("Tabela de investimento:\n");
-        for(i=0; i<mesestabela; i++){
-            printf("Mes %d: Depositar R$ %.2f\n", i+1, tabelainvestimento[i]);
+void criarDesafioAutomatico(){
+    float metaTotal;
+    printf("Digite a meta total anual: ");
+    while(scanf("%f", &metaTotal) != 1 || metaTotal <= 0){
+        printf("Entrada invalida! Digite um numero positivo: ");
+        while(getchar() != '\n');
+    }
+
+    int meses = 12;
+    totalDepositos = meses;
+
+    // Zera a tabela antiga
+    for(int j=0; j<500; j++) tabelaDesafio[j] = 0;
+
+    float deposito = ceil((metaTotal / meses) * 10) / 10.0; // arredonda para cima
+    float acumulado = 0;
+
+    printf("\nDesafio automatico:\n");
+    printf("Mes\tValor a depositar\tTotal acumulado\n");
+    for(int i = 0; i < meses; i++){
+        tabelaDesafio[i] = deposito;
+        acumulado += deposito;
+        printf("%d\t%.1f\t\t\t%.1f\n", i+1, deposito, acumulado);
+    }
+    printf("Meta anual: %.1f, Total acumulado: %.1f\n", metaTotal, acumulado);
+}
+
+void criarDesafioPersonalizado(){
+    float metaTotal;
+    int meses;
+    printf("Digite a meta total: ");
+    while(scanf("%f", &metaTotal) != 1 || metaTotal <= 0){
+        printf("Entrada invalida! Digite um numero positivo: ");
+        while(getchar() != '\n');
+    }
+
+    printf("Em quantos meses deseja juntar: ");
+    while(scanf("%d", &meses) != 1 || meses <= 0){
+        printf("Entrada invalida! Digite um numero positivo: ");
+        while(getchar() != '\n');
+    }
+
+    int depositosPorMes = 20;
+    totalDepositos = meses * depositosPorMes;
+    if(totalDepositos > 500) totalDepositos = 500;
+
+    // Zera a tabela antiga
+    for(int j=0; j<500; j++) tabelaDesafio[j] = 0;
+
+    float valorBase = metaTotal / totalDepositos;
+    float acumulado = 0;
+    int incremento = 1;
+
+    printf("\nDesafio personalizado:\n");
+    printf("Deposito\tValor a depositar\tTotal acumulado\n");
+
+    for(int i = 0; i < totalDepositos; i++){
+        if(i > 0 && i % 5 == 0 && acumulado < metaTotal){
+            incremento++;
+        }
+        float valorDeposito = valorBase * incremento;
+        valorDeposito = ceil(valorDeposito * 10) / 10.0; // arredonda pra cima
+        tabelaDesafio[i] = valorDeposito;
+        acumulado += valorDeposito;
+        printf("%d\t\t%.1f\t\t\t%.1f\n", i+1, valorDeposito, acumulado);
+        if(acumulado >= metaTotal){
+            for(int j=i+1; j<totalDepositos; j++){
+                tabelaDesafio[j] = valorDeposito;
+            }
+            break;
         }
     }
+    printf("Meta desejada: %.1f, Total acumulado: %.1f\n", metaTotal, acumulado);
 }
 
-// -------- FUNÇÃO PRINCIPAL --------
+// -------- FUNCAO PRINCIPAL --------
 int main(){
-    char nomeCompleto[100]; 
-    char primeiroNome[50];  // armazena apenas o primeiro nome
-    int menu, retornar = 1;
-    float saldoatual=0;
+    int menu, continuar = 1;
 
-    printf("Bem vindo ao FinancasPro, seu gerenciador de financas e auxiliar de tabelas de investimento!\n");
+    printf("Bem vindo ao FinancasPro, seu gerenciador de financas!\n");
     printf("Informe seu nome completo: ");
-    while(getchar() != '\n'); // limpa caracteres anteriores do buffer
-    fgets(nomeCompleto, sizeof(nomeCompleto), stdin); // lê espaços
-
-    // Remove o '\n' do final da string (causado pelo Enter)
+    fgets(nomeCompleto, sizeof(nomeCompleto), stdin);
     nomeCompleto[strcspn(nomeCompleto, "\n")] = '\0';
+    strcpy(primeiroNome, strtok(nomeCompleto, " "));
 
-    // Extrai o primeiro nome usando strtok
-    strcpy(primeiroNome, strtok(nomeCompleto, " ")); 
-
-    while (retornar == 1) {
+    while(continuar){
         printf("\nOla, %s. O que gostaria de acessar?\n", primeiroNome);
-        printf("1 - Gerenciador de financas\n2 - Tabelas de investimento\n3 - Sair\nEscolha: ");
-        
-        while (scanf("%d", &menu) != 1 || menu < 1 || menu > 3) {
+        printf("1 - Gerenciador de financas\n2 - Desafio da tabela de investimento\n3 - Sair\nEscolha: ");
+
+        while(scanf("%d", &menu) != 1 || menu < 1 || menu > 3){
             printf("Entrada invalida! Digite 1, 2 ou 3: ");
             while(getchar() != '\n');
         }
 
-        if (menu == 1) {
-            int menugerenciador, continuarGerenciador = 1;
-            while (continuarGerenciador == 1) {
-                printf("\nMenu do Gerenciador de Financas:\n");
-                printf("1 - Ver saldo atual\n2 - Adicionar rendimento diario\n3 - Registrar despesa diaria\n4 - Voltar ao menu principal\nEscolha: ");
-
-                while (scanf("%d", &menugerenciador) != 1 || menugerenciador < 1 || menugerenciador > 4) {
+        if(menu == 1){
+            int subMenu, gerenciador = 1;
+            while(gerenciador){
+                printf("\nMenu do Gerenciador:\n");
+                printf("1 - Ver saldo atual\n2 - Adicionar rendimento diario\n3 - Registrar despesa diaria\n4 - Voltar\nEscolha: ");
+                while(scanf("%d", &subMenu) != 1 || subMenu < 1 || subMenu > 4){
                     printf("Entrada invalida! Digite 1, 2, 3 ou 4: ");
                     while(getchar() != '\n');
                 }
-
-                if (menugerenciador == 1) {
-                    mostrarSaldo(saldoatual);
-                } else if (menugerenciador == 2) {
-                    saldoatual = atualizarRendimento(saldoatual);
-                } else if (menugerenciador == 3) {
-                    saldoatual = atualizarDespesa(saldoatual);
-                } else if (menugerenciador == 4) {
-                    continuarGerenciador = 0;
-                }
+                if(subMenu == 1) mostrarSaldo();
+                else if(subMenu == 2) atualizarRendimento();
+                else if(subMenu == 3) atualizarDespesa();
+                else if(subMenu == 4) gerenciador = 0;
             }
 
-        } else if (menu == 2) {
-            int menutabela, continuarTabela = 1;
-            while (continuarTabela == 1) {
-                printf("\nMenu das Tabelas de Investimento:\n");
-                printf("1 - Verificar tabela atual\n2 - Criar nova tabela\n3 - Voltar ao menu principal\nEscolha: ");
-
-                while (scanf("%d", &menutabela) != 1 || menutabela < 1 || menutabela > 3) {
-                    printf("Entrada invalida! Digite 1, 2 ou 3: ");
+        } else if(menu == 2){
+            int subMenu, desafio = 1;
+            while(desafio){
+                printf("\nMenu do Desafio da tabela de investimento:\n");
+                printf("1 - Ver tabela do desafio\n2 - Criar desafio automatico\n3 - Criar desafio personalizado\n4 - Voltar\nEscolha: ");
+                while(scanf("%d", &subMenu) != 1 || subMenu < 1 || subMenu > 4){
+                    printf("Entrada invalida! Digite 1, 2, 3 ou 4: ");
                     while(getchar() != '\n');
                 }
-
-                if (menutabela == 1) {
-                    mostrarTabelaInvestimento();
-                } else if (menutabela == 2) {
-                    criarTabelaInvestimento();
-                } else if (menutabela == 3) {
-                    continuarTabela = 0;
-                }
+                if(subMenu == 1) verTabelaDesafio();
+                else if(subMenu == 2) criarDesafioAutomatico();
+                else if(subMenu == 3) criarDesafioPersonalizado();
+                else if(subMenu == 4) desafio = 0;
             }
 
-        } else if (menu == 3) {
+        } else if(menu == 3){
             printf("Saindo do programa. Ate logo, %s!\n", primeiroNome);
-            retornar = 0;
+            continuar = 0;
         }
     }
 
