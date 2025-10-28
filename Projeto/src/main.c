@@ -3,22 +3,25 @@
 #include <string.h>
 #include <math.h>
 
-// Variaveis globais
-char *nomeCompleto = NULL;  // alocado dinamicamente
-char *primeiroNome = NULL;  // alocado dinamicamente
-float saldoAtual = 0;
+// ------------------- INICIO VARIAVEIS GLOBAIS -------------------
+char *nomeCompleto = NULL;  // Nome completo do usuário (alocação dinâmica)
+char *primeiroNome = NULL;  // Primeiro nome extraído (alocação dinâmica)
+float saldoAtual = 0;       // Saldo do usuário
 
-// Tabela de desafios (matriz: meses x 20 depositos por mes)
+// Tabela de desafios (matriz bidimensional: meses x 20 depósitos por mês)
 #define MAX_MESES 12
 #define DEPOSITOS_POR_MES 20
 float tabelaDesafio[MAX_MESES][DEPOSITOS_POR_MES];
-int mesesDesafio = 0;
+int mesesDesafio = 0;  // Quantidade de meses no desafio
+// ------------------- FIM VARIAVEIS GLOBAIS -------------------
 
-// -------- FUNCOES --------
+// ------------------- FUNCOES -------------------
+// Função para mostrar saldo (uso de ponteiro)
 void mostrarSaldo(float *saldo){
     printf("Saldo atual: R$ %.1f\n", *saldo);
 }
 
+// Função para atualizar rendimento (uso de ponteiro)
 void atualizarRendimento(float *saldo){
     float rendimento;
     printf("Digite o valor do rendimento diario: ");
@@ -26,10 +29,11 @@ void atualizarRendimento(float *saldo){
         printf("Entrada invalida! Digite um numero: ");
         while(getchar() != '\n');
     }
-    *saldo += rendimento;  // ponteiro altera o valor diretamente
+    *saldo += rendimento;
     printf("Rendimento adicionado. Novo saldo: R$ %.1f\n", *saldo);
 }
 
+// Função para atualizar despesa (uso de ponteiro)
 void atualizarDespesa(float *saldo){
     float despesa;
     printf("Digite o valor da despesa diaria: ");
@@ -37,10 +41,11 @@ void atualizarDespesa(float *saldo){
         printf("Entrada invalida! Digite um numero: ");
         while(getchar() != '\n');
     }
-    *saldo -= despesa;  // ponteiro altera o valor diretamente
+    *saldo -= despesa;
     printf("Despesa registrada. Novo saldo: R$ %.1f\n", *saldo);
 }
 
+// Função para ver tabela do desafio (uso de matriz bidimensional e loops aninhados)
 void verTabelaDesafio(){
     if(mesesDesafio == 0){
         printf("Nenhum desafio criado ainda. Crie um desafio primeiro.\n");
@@ -50,8 +55,8 @@ void verTabelaDesafio(){
     printf("\nTabela do desafio:\n");
     printf("Mes\tDeposito\tValor a depositar\tTotal acumulado\n");
     float acumulado = 0;
-    for(int i = 0; i < mesesDesafio; i++){
-        for(int j = 0; j < DEPOSITOS_POR_MES; j++){
+    for(int i = 0; i < mesesDesafio; i++){          // Loop externo (meses)
+        for(int j = 0; j < DEPOSITOS_POR_MES; j++){ // Loop interno (depósitos)
             if(tabelaDesafio[i][j] > 0){
                 acumulado += tabelaDesafio[i][j];
                 printf("%d\t%d\t\t%.1f\t\t\t%.1f\n", i+1, j+1, tabelaDesafio[i][j], acumulado);
@@ -61,6 +66,7 @@ void verTabelaDesafio(){
     printf("Total acumulado: %.1f\n", acumulado);
 }
 
+// Cria desafio automático (uso de loops e arredondamento)
 void criarDesafioAutomatico(){
     float metaTotal;
     printf("Digite a meta total anual: ");
@@ -71,7 +77,7 @@ void criarDesafioAutomatico(){
 
     mesesDesafio = 12;
 
-    // Zera a tabela antiga
+    // Zera tabela antiga (uso de loops aninhados)
     for(int i = 0; i < MAX_MESES; i++)
         for(int j = 0; j < DEPOSITOS_POR_MES; j++)
             tabelaDesafio[i][j] = 0;
@@ -92,6 +98,7 @@ void criarDesafioAutomatico(){
     printf("Meta anual: %.1f, Total acumulado: %.1f\n", metaTotal, acumulado);
 }
 
+// Cria desafio personalizado (uso de loops aninhados, incremento gradual e matriz)
 void criarDesafioPersonalizado(){
     float metaTotal;
     int meses;
@@ -125,7 +132,7 @@ void criarDesafioPersonalizado(){
 
     for(int i = 0; i < mesesDesafio; i++){
         for(int j = 0; j < DEPOSITOS_POR_MES; j++){
-            tabelaDesafio[i][j] = ceil(valorAtual * 10) / 10.0;
+            tabelaDesafio[i][j] = ceil(valorAtual * 10) / 10.0; // arredonda pra cima 1 casa decimal
             acumulado += tabelaDesafio[i][j];
             printf("%d\t%d\t\t%.1f\t\t\t%.1f\n", i+1, j+1, tabelaDesafio[i][j], acumulado);
 
@@ -146,11 +153,11 @@ void criarDesafioPersonalizado(){
     printf("Meta desejada: %.1f, Total acumulado: %.1f\n", metaTotal, acumulado);
 }
 
-// -------- FUNCAO PRINCIPAL --------
+// ------------------- FUNCAO PRINCIPAL -------------------
 int main(){
     int menu, continuar = 1;
 
-    // Alocacao dinamica do nome
+    // Alocação dinâmica do nome completo (uso de malloc)
     nomeCompleto = (char*) malloc(200 * sizeof(char));
     if(nomeCompleto == NULL){
         printf("Erro ao alocar memoria.\n");
@@ -162,7 +169,7 @@ int main(){
     fgets(nomeCompleto, 200, stdin);
     nomeCompleto[strcspn(nomeCompleto, "\n")] = '\0';
 
-    // Alocacao dinamica para o primeiro nome
+    // Alocação dinâmica do primeiro nome
     char *token = strtok(nomeCompleto, " ");
     primeiroNome = (char*) malloc((strlen(token)+1) * sizeof(char));
     if(primeiroNome == NULL){
@@ -172,6 +179,7 @@ int main(){
     }
     strcpy(primeiroNome, token);
 
+    // ------------------- LOOP PRINCIPAL -------------------
     while(continuar){
         printf("\nOla, %s. O que gostaria de acessar?\n", primeiroNome);
         printf("1 - Gerenciador de financas\n2 - Desafio da tabela de investimento\n3 - Sair\nEscolha: ");
@@ -181,7 +189,7 @@ int main(){
             while(getchar() != '\n');
         }
 
-        if(menu == 1){
+        if(menu == 1){ // ------------------- GERENCIADOR DE FINANCAS -------------------
             int subMenu, gerenciador = 1;
             while(gerenciador){
                 printf("\nMenu do Gerenciador:\n");
@@ -196,7 +204,7 @@ int main(){
                 else if(subMenu == 4) gerenciador = 0;
             }
 
-        } else if(menu == 2){
+        } else if(menu == 2){ // ------------------- DESAFIO DE TABELA DE INVESTIMENTO -------------------
             int subMenu, desafio = 1;
             while(desafio){
                 printf("\nMenu do Desafio da tabela de investimento:\n");
@@ -211,16 +219,15 @@ int main(){
                 else if(subMenu == 4) desafio = 0;
             }
 
-        } else if(menu == 3){
+        } else if(menu == 3){ // ------------------- SAIR -------------------
             printf("Saindo do programa. Ate logo, %s!\n", primeiroNome);
             continuar = 0;
         }
     }
 
-    // Libera memoria alocada dinamicamente
+    // Libera memória alocada dinamicamente (uso de free)
     free(nomeCompleto);
     free(primeiroNome);
 
     return 0;
 }
-
